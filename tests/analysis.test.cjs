@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict');
+global.document={addEventListener(){}};
+const A=require('../static/analysis.js');
+const area=(baseline,current,observations=[])=>({metrics:{baseline,current_ndvi:current,observations}});
+assert.deepEqual(A.changed([area(.5,.6),area(.5,.4),area(null,.8),area(.5,.5)],1).map(x=>x.metrics.current_ndvi),[.6]);
+assert.deepEqual(A.changed([area(.5,.6),area(.5,.4)],-1).map(x=>x.metrics.current_ndvi),[.4]);
+const sample=area(0,.2,[{measured_at:'2026-02-01',ndvi:.2},{measured_at:'2026-01-01',ndvi:0},{measured_at:'2026-03-01',ndvi:null}]);
+assert.equal(A.compare(sample,'2026-01-01','2026-02-01').pct,null);
+assert.equal(A.compare(sample,'2026-01-01','2026-02-01').delta,.2);
+assert.equal(A.compare(sample,'2026-02-01','2026-01-01'),null);
+assert.equal(A.compare(sample,'2026-01-01','2026-01-01'),null);
+assert.equal(A.observations(sample).length,2);
+console.log('7 analysis assertions passed');
